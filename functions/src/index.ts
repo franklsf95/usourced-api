@@ -13,6 +13,11 @@ async function existsCompanyByName(name: string): Promise<boolean> {
   return !snapshot.empty;
 }
 
+/**
+ * When a user updates their company name, if the company does not exist, add
+ * it to the database and add the company ID to the user's custom claims.
+ * Otherwise, notify the site admin for manual approval.
+ */
 async function onCreateOrUpdateUserAccount(
   snapshot: admin.firestore.DocumentSnapshot,
   context: functions.EventContext,
@@ -20,6 +25,7 @@ async function onCreateOrUpdateUserAccount(
   const companyName = snapshot.data()?.companyName;
   const companyExists = await existsCompanyByName(companyName);
   if (companyExists) {
+    // TODO(@lsf): Notify site admin for manual approval.
     return;
   }
   const company = await db.collection("companies").add({ name: companyName });
